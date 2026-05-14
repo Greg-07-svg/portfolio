@@ -155,7 +155,7 @@ function makeAxisLabel(text, pos, color) {
 }
 makeAxisLabel('x', [6.5, 0, 0], '#ff6666');
 makeAxisLabel('y', [0, 6.5, 0], '#66ff66');
-makeAxisLabel('z', [0, 0, 6.5], '#6688ff');
+makeAxisLabel('z', [0, 0, 6.5], '#3d0553');
 
 const originGeo = new THREE.SphereGeometry(0.3, 24, 24);
 const originMat = new THREE.MeshStandardMaterial({
