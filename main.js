@@ -140,7 +140,7 @@ function makeAxis(from, to, color) {
 }
 scene.add(makeAxis([-6, 0, 0], [6, 0, 0], 0xff4444));
 scene.add(makeAxis([0, -6, 0], [0, 6, 0], 0x44ff44));
-scene.add(makeAxis([0, 0, -6], [0, 0, 6], #BF00FF));
+scene.add(makeAxis([0, 0, -6], [0, 0, 6], 0xBF00FF));
 
 function makeAxisLabel(text, pos, color) {
   const div = document.createElement('div');
