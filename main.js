@@ -9,7 +9,7 @@ const DATA = {
       content: {
         title: 'About Me',
         subtitle: 'Building things that matter.',
-        body: "I'm a software engineering student at University College Cork with a passion for crafting elegant digital experiences. I love the intersection of code and creativity — whether it's designing a 3D portfolio or architecting a backend API.",
+        body: "I'm a software engineering student at Catholic University Of Cordoba with a passion for crafting. I love the intersection of code and creativity ",
         details: ['Web Dev', 'Problem Solver', 'Creative Thinker']
       }
     },
@@ -32,7 +32,7 @@ const DATA = {
         title: 'Skills',
         subtitle: 'Tools of the trade.',
         body: 'I work across the stack with modern technologies. Always exploring new tools and paradigms to stay current and build better software.',
-        details: ['JavaScript / TS', 'Python', 'React', 'Node.js', 'Three.js', 'SQL']
+        details: ['JavaScript ', 'C++', 'React', 'SQL', 'R']
       }
     },
     {
@@ -52,9 +52,9 @@ const DATA = {
       color: '#a29bfe',
       content: {
         title: 'Education',
-        subtitle: 'Computer Science & Engineering.',
-        body: 'Currently pursuing a degree in Software Engineering at University College Cork. Coursework includes data structures, algorithms, databases, networking, and software design patterns.',
-        details: ['BSc Software Engineering', 'UCC', '2023 — 2027']
+        subtitle: 'Software Engineering.',
+        body: 'Currently pursuing a degree in Software Engineering at Catholic University Of Cordoba. Coursework includes data structures, algorithms, databases, networking, and software design patterns.',
+        details: ['BSc Software Engineering', 'UCC', '2025 — 2029']
       }
     },
     {
@@ -65,7 +65,7 @@ const DATA = {
         title: 'Get in Touch',
         subtitle: "Let's build something together.",
         body: "I'm always open to interesting conversations, collaboration opportunities, or just a friendly chat. Feel free to reach out!",
-        details: ['Email: greg@example.com', 'GitHub: @greg', 'LinkedIn: /in/greg']
+        details: ['Email: mirandagregorio107@gmail.com', 'GitHub: @Greg-07-svg', 'LinkedIn: https://www.linkedin.com/in/gregorio-miranda-a1a129264/']
       }
     }
   ]
@@ -140,7 +140,7 @@ function makeAxis(from, to, color) {
 }
 scene.add(makeAxis([-6, 0, 0], [6, 0, 0], 0xff4444));
 scene.add(makeAxis([0, -6, 0], [0, 6, 0], 0x44ff44));
-scene.add(makeAxis([0, 0, -6], [0, 0, 6], 0x4488ff));
+scene.add(makeAxis([0, 0, -6], [0, 0, 6], #BF00FF));
 
 function makeAxisLabel(text, pos, color) {
   const div = document.createElement('div');
