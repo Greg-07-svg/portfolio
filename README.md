@@ -4,7 +4,7 @@ Interactive 3D portfolio built with Three.js. Vectors radiate from the origin in
 
 ## How to run
 
-**Just double-click `index.html`.** No server needed. (Requires internet for the Three.js CDN scripts.)
+**Just enter this link 'portfolio-greg-07-svgs-projects.vercel.app'
 
 
 ## Project structure
