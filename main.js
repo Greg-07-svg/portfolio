@@ -85,6 +85,17 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.2;
 document.body.prepend(renderer.domElement);
 
+// Post-Processing Setup
+const renderScene = new THREE.RenderPass(scene, camera);
+const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+bloomPass.threshold = 0.1;
+bloomPass.strength = 1.5;
+bloomPass.radius = 0.8;
+
+const composer = new THREE.EffectComposer(renderer);
+composer.addPass(renderScene);
+composer.addPass(bloomPass);
+
 const labelRenderer = new THREE.CSS2DRenderer();
 labelRenderer.setSize(window.innerWidth, window.innerHeight);
 labelRenderer.domElement.id = 'labels-renderer';
@@ -120,8 +131,9 @@ const starsMat = new THREE.PointsMaterial({
   color: 0xffffff,
   size: 0.08,
   transparent: true,
-  opacity: 0.7,
-  sizeAttenuation: true
+  opacity: 0.8,
+  sizeAttenuation: true,
+  blending: THREE.AdditiveBlending
 });
 const stars = new THREE.Points(starsGeo, starsMat);
 scene.add(stars);
@@ -158,14 +170,16 @@ makeAxisLabel('y', [0, 6.5, 0], '#66ff66');
 makeAxisLabel('z', [0, 0, 6.5], '#3d0553');
 
 const originGeo = new THREE.SphereGeometry(0.3, 24, 24);
-const originMat = new THREE.MeshStandardMaterial({
+const originMat = new THREE.MeshPhysicalMaterial({
   color: 0x8888ff,
   emissive: 0x4444ff,
-  emissiveIntensity: 0.6,
-  roughness: 0.2,
-  metalness: 0.8,
+  emissiveIntensity: 1.5,
+  roughness: 0.1,
+  metalness: 0.9,
+  clearcoat: 1.0,
+  clearcoatRoughness: 0.1,
   transparent: true,
-  opacity: 0.8
+  opacity: 0.9
 });
 const origin = new THREE.Mesh(originGeo, originMat);
 scene.add(origin);
@@ -220,12 +234,13 @@ function buildVector(data, index) {
   }
 
   const coneGeo = new THREE.ConeGeometry(0.18, 0.5, 8);
-  const coneMat = new THREE.MeshStandardMaterial({
+  const coneMat = new THREE.MeshPhysicalMaterial({
     color,
     emissive: color,
-    emissiveIntensity: 0.25,
-    roughness: 0.4,
-    metalness: 0.3
+    emissiveIntensity: 0.8,
+    roughness: 0.2,
+    metalness: 0.5,
+    clearcoat: 0.5
   });
   const cone = new THREE.Mesh(coneGeo, coneMat);
   const conePos = end.clone().add(dir.clone().multiplyScalar(-0.45));
@@ -234,12 +249,14 @@ function buildVector(data, index) {
   scene.add(cone);
 
   const sphereGeo = new THREE.SphereGeometry(0.42, 20, 20);
-  const sphereMat = new THREE.MeshStandardMaterial({
+  const sphereMat = new THREE.MeshPhysicalMaterial({
     color,
     emissive: color,
-    emissiveIntensity: 0.5,
-    roughness: 0.2,
-    metalness: 0.6
+    emissiveIntensity: 1.2,
+    roughness: 0.1,
+    metalness: 0.8,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.2
   });
   const sphere = new THREE.Mesh(sphereGeo, sphereMat);
   sphere.position.copy(end);
@@ -297,7 +314,7 @@ renderer.domElement.addEventListener('pointermove', function (event) {
   const intersects = raycaster.intersectObjects(endpointMeshes);
 
   if (hoveredNode && hoveredNode !== (intersects.length ? intersects[0].object : null)) {
-    hoveredNode.material.emissiveIntensity = 0.5;
+    hoveredNode.material.emissiveIntensity = 1.2;
     const entry = vectorData[DATA.vectors.indexOf(hoveredNode.userData.data)];
     if (entry) entry.label.element.className = 'label';
     hoveredNode = null;
@@ -308,7 +325,7 @@ renderer.domElement.addEventListener('pointermove', function (event) {
     const obj = intersects[0].object;
     if (obj !== hoveredNode) {
       hoveredNode = obj;
-      obj.material.emissiveIntensity = 1.2;
+      obj.material.emissiveIntensity = 2.5;
       const entry = vectorData[DATA.vectors.indexOf(obj.userData.data)];
       if (entry) entry.label.element.className = 'label active';
       renderer.domElement.style.cursor = 'pointer';
@@ -324,6 +341,9 @@ const panelBody = document.getElementById('panel-body');
 const panelDetails = document.getElementById('panel-details');
 const closeBtn = document.getElementById('close-btn');
 
+let savedCameraPos = new THREE.Vector3();
+let savedTargetPos = new THREE.Vector3();
+
 function openPanel(data) {
   const c = data.content;
   panelAccent.style.background = data.color;
@@ -337,11 +357,53 @@ function openPanel(data) {
     panelDetails.appendChild(span);
   });
   overlay.classList.add('open');
+
+  // Save current camera and target positions
+  savedCameraPos.copy(camera.position);
+  savedTargetPos.copy(controls.target);
+
+  // Calculate new camera position
+  const nodePos = new THREE.Vector3(data.pos[0], data.pos[1], data.pos[2]);
+  const dir = nodePos.clone().normalize();
+  const newCamPos = nodePos.clone().add(dir.multiplyScalar(6));
+  newCamPos.y += 1.5;
+
+  gsap.to(camera.position, {
+    x: newCamPos.x,
+    y: newCamPos.y,
+    z: newCamPos.z,
+    duration: 1.2,
+    ease: "power3.inOut"
+  });
+
+  gsap.to(controls.target, {
+    x: nodePos.x,
+    y: nodePos.y,
+    z: nodePos.z,
+    duration: 1.2,
+    ease: "power3.inOut"
+  });
 }
 
 function closePanel() {
   overlay.classList.remove('open');
   controls.autoRotate = true;
+
+  gsap.to(camera.position, {
+    x: savedCameraPos.x,
+    y: savedCameraPos.y,
+    z: savedCameraPos.z,
+    duration: 1.2,
+    ease: "power3.inOut"
+  });
+
+  gsap.to(controls.target, {
+    x: savedTargetPos.x,
+    y: savedTargetPos.y,
+    z: savedTargetPos.z,
+    duration: 1.2,
+    ease: "power3.inOut"
+  });
 }
 
 closeBtn.addEventListener('click', closePanel);
@@ -358,6 +420,7 @@ window.addEventListener('resize', function () {
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   renderer.setSize(w, h);
+  composer.setSize(w, h);
   labelRenderer.setSize(w, h);
 });
 
@@ -383,7 +446,11 @@ function animate() {
 
   controls.update();
 
-  renderer.render(scene, camera);
+  // Slow particle rotation
+  stars.rotation.y = t * 0.03;
+  stars.rotation.x = t * 0.01;
+
+  composer.render();
   labelRenderer.render(scene, camera);
   requestAnimationFrame(animate);
 }
